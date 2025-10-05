@@ -1,0 +1,30 @@
+from openai import OpenAI
+import src.config as config
+
+class LLMProcessor:
+    def __init__(self, model_name):
+        self.client = OpenAI(
+            base_url='http://localhost:11434/v1',
+            api_key='ollama',
+        )
+        self.model = model_name
+        self.history = [{"role": "system", "content": config.SYSTEM_PROMPT}]
+
+    def get_response(self, user_text):
+        print(f"---> Asistente pensando (usando {self.model})...")
+        self.history.append({"role": "user", "content": user_text})
+        
+        response_stream = self.client.chat.completions.create(
+            model=self.model,
+            messages=self.history,
+            stream=True
+        )
+        
+        return response_stream
+
+    def add_assistant_response(self, response_text):
+        self.history.append({"role": "assistant", "content": response_text})
+        while len(self.history) > 10:
+            self.history.pop(1)
+
+llm_processor = LLMProcessor(model_name=config.OLLAMA_MODEL)
