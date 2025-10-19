@@ -1,15 +1,15 @@
 # MILO TTS - Asistente Virtual con Clonación de Voz
 # Versiones testadas y funcionales (Octubre 2025)
-# Python: 3.11.13
+# Python: 3.12.x
 
 # ==============================================
 # LIBRERÍAS PRINCIPALES (VERSIONES CRÍTICAS)
 # ==============================================
 
-# --- PyTorch Stack (CUDA 12.8 compatible) ---
+# --- PyTorch Stack (CUDA 12.9 compatible) ---
 # IMPORTANTE: Estas versiones son compatibles entre sí y con TTS 0.22.0
-torch==2.8.0
-torchaudio==2.8.0
+torch==2.4.1
+torchaudio==2.4.1
 # Nota: torchvision no es necesario para este proyecto
 
 # --- TTS y dependencias de IA ---
@@ -29,6 +29,9 @@ numpy==1.26.4
 websockets==15.0.1
 aiofiles==24.1.0
 aiohttp==3.12.15
+
+# --- Logging ---
+coloredlogs==15.0.1
 
 # ==============================================
 # DEPENDENCIAS SECUNDARIAS (VERSIONES ESTABLES)
@@ -57,6 +60,9 @@ PyYAML==6.0.3
 packaging==25.0
 filelock==3.19.1
 
+# --- Dotenv para variables de entorno ---
+python-dotenv
+
 # ==============================================
 # NVIDIA CUDA DEPENDENCIES (AUTO-INSTALADAS)
 # ==============================================
@@ -73,9 +79,9 @@ filelock==3.19.1
 # NOTAS DE INSTALACIÓN
 # ==============================================
 # 1. Instalar en este orden para evitar conflictos:
-#    pip install torch==2.8.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu128
+#    pip install torch==2.4.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
 #    pip install -r requirements.txt
 #
 # 2. Archivo mi_voz.wav requerido en la raíz del proyecto
 # 3. Ejecutar src/preload_voice.py antes del primer uso
-# 4. Compatible con CUDA 12.8+ y Python 3.11+
+# 4. Compatible con CUDA 12.9+ y Python 3.12+

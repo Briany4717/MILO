@@ -1,0 +1,115 @@
+# Docker ignore para MILO-Server
+# Excluir archivos innecesarios del contexto de construcción
+
+# Entornos virtuales
+evenv/
+venv/
+env/
+.venv/
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Cache de modelos (se descargan automáticamente)
+.tts/
+.torch/
+.transformers/
+models/
+*.pth
+# Excepción: permitir voice_embedding.pth específicamente
+!voice_embedding.pth
+*.pt
+*.ckpt
+
+# Archivos temporales
+temp/
+tmp/
+*.tmp
+*.temp
+temp_*.wav
+response.wav
+
+# Logs
+*.log
+logs/
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Documentación
+README.md
+LICENSE
+docs/
+
+# Configuración local
+.env
+.env.local
+.env.*.local
+config.local.py
+
+# Archivos de audio grandes (excepto samples esenciales)
+*.wav
+*.mp3
+*.flac
+*.ogg
+!samples/*.wav
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Otros
+*.bak
+*.orig

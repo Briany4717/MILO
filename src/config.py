@@ -1,6 +1,12 @@
+import os
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
+
 # --- Configuración de Red ---
-WEBSOCKET_HOST = "0.0.0.0"
-WEBSOCKET_PORT = 8765
+WEBSOCKET_HOST = os.getenv("WEBSOCKET_HOST", "0.0.0.0")
+WEBSOCKET_PORT = int(os.getenv("WEBSOCKET_PORT", 8765))
 
 # --- Configuración de Audio ---
 WAVE_INPUT_FILENAME = "temp_input.wav"
@@ -10,14 +16,14 @@ SAMPLE_WIDTH = 2
 FRAME_RATE = 16000
 
 # Modelos de Whisper: "tiny", "base", "small", "medium", "large"
-WHISPER_MODEL_SIZE = "base"
+WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base")
 
 # Modelo de Ollama
-OLLAMA_MODEL = "llama3:8b-instruct-q4_K_M"
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b-instruct-q4_K_M")
 
 # Modelo de TTS y voz para clonar
-TTS_MODEL = "tts_models/multilingual/multi-dataset/xtts_v2"
-TTS_SPEAKER_WAV = "samples/alejandro_sample_v2.wav"
+TTS_MODEL = os.getenv("TTS_MODEL", "tts_models/multilingual/multi-dataset/xtts_v2")
+TTS_SPEAKER_WAV = os.getenv("TTS_SPEAKER_WAV", "samples/alejandro_sample_v2.wav")
 
 SYSTEM_PROMPT = """
 Eres MILO, un asistente de IA. Tu tarea es responder al usuario de forma concisa.

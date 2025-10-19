@@ -1,0 +1,57 @@
+# --- Etapa 1: Builder ---
+# Esta etapa instala todas las dependencias en un entorno aislado.
+FROM python:3.11-slim AS builder
+
+# Instalar dependencias del sistema necesarias para compilar paquetes de Python
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear un entorno virtual
+RUN python -m venv /opt/venv
+
+# Activar el entorno virtual
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copiar el archivo de requerimientos e instalar dependencias
+# Esto se cachea y solo se re-ejecuta si requirements.txt cambia.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# --- Etapa 2: Final ---
+# Esta etapa construye la imagen final ligera con el código y las dependencias ya instaladas.
+FROM python:3.11-slim
+
+# Instalar solo las dependencias de sistema necesarias para EJECUTAR la aplicación
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear un usuario no-root para mayor seguridad
+RUN useradd --create-home appuser
+WORKDIR /home/appuser
+
+# Copiar el entorno virtual con las dependencias desde la etapa 'builder'
+COPY --from=builder /opt/venv /opt/venv
+
+# Copiar el código fuente de la aplicación
+COPY src/ ./src
+COPY main.py .
+COPY .env.example .
+
+# Copiar los recursos necesarios para TTS
+COPY --chown=appuser:appuser samples/ ./samples
+COPY --chown=appuser:appuser data/voice_embedding.pth ./voice_embedding.pth
+
+# Activar el entorno virtual
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Cambiar al usuario no-root
+USER appuser
+
+# Exponer el puerto que usará la aplicación
+EXPOSE 8765
+
+# Comando para ejecutar la aplicación
+CMD ["python", "main.py"]

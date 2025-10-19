@@ -209,3 +209,17 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 .venv
+
+# Project-specific ignores
+evenv/
+temp/
+response.wav
+
+# Data, models and samples
+ollama-models/
+voice_embedding.pth
+*.pth
+samples/
+
+# Obsolete backups directory
+backups/

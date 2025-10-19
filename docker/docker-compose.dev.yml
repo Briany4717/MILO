@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  milo-server:
+    volumes:
+      - ../src:/home/appuser/src:rw
+      - ../main.py:/home/appuser/main.py:rw
+      - ../logs:/home/appuser/logs:rw
+    environment:
+      PYTHONPATH: /home/appuser
+      DEBUG: "true"
+      LOG_LEVEL: DEBUG
+    ports:
+      - "8765:8765"
+      - "5678:5678"
+    restart: "no"
+    profiles:
+      - dev
+
+  file-watcher:
+    image: alpine:latest
+    container_name: milo-dev-watcher
+    volumes:
+      - ../:/workspace:ro
+    command: sh -c "apk add --no-cache inotify-tools && echo 'Watching for file changes...' && while inotifywait -r -e modify,create,delete /workspace/src /workspace/main.py; do echo 'Files changed, consider restarting milo-server'; done"
+    profiles:
+      - dev
+
+  dev-logs:
+    image: postgres:15-alpine
+    container_name: milo-dev-logs
+    environment:
+      POSTGRES_DB: milo_logs
+      POSTGRES_USER: milo
+      POSTGRES_PASSWORD: dev123
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev-logs-data:/var/lib/postgresql/data
+    profiles:
+      - dev-full
+
+volumes:
+  dev-logs-data:
+    driver: local

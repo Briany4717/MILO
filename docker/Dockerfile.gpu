@@ -1,0 +1,60 @@
+# Dockerfile para entornos con GPU (NVIDIA)
+# Usa una imagen base CUDA y configura Python 3.11 sobre ella.
+
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04 AS base
+
+# Instalar dependencias del sistema y Python
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-venv python3-pip python3.11-dev build-essential ffmpeg git ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Crear alias python y pip
+RUN ln -s /usr/bin/python3.11 /usr/local/bin/python && \
+    ln -s /usr/bin/pip3 /usr/local/bin/pip || true
+
+# Crear un entorno virtual y activar PATH
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copiar requirements e instalarlas. Se usará una rueda de PyTorch compatible con CUDA 12.1
+COPY requirements.txt .
+
+# Instalar PyTorch y torchaudio con soporte CUDA 12.1 desde el índice oficial
+RUN pip install --upgrade pip
+# Instalar torch compatible con cu121 (esto puede necesitar ajustar la versión según soporte)
+RUN pip install --index-url https://download.pytorch.org/whl/cu121 \
+    "torch==2.2.1+cu121" "torchaudio==2.2.1+cu121" --extra-index-url https://download.pytorch.org/whl/cu121 || true
+
+# Instalar el resto de requerimientos (sin torch/torchaudio si fallaron arriba)
+RUN pip install --no-cache-dir -r requirements.txt || true
+
+# Optional: preload TTS model during build to avoid interactive prompts at runtime
+ARG PRELOAD_TTS=0
+COPY scripts/ /tmp/scripts/
+RUN if [ "$PRELOAD_TTS" = "1" ]; then \
+    python /tmp/scripts/preload_tts.py || true; \
+    fi
+
+# Copiar código
+COPY src/ /home/appuser/src
+COPY main.py /home/appuser/main.py
+COPY .env.example /home/appuser/.env.example
+COPY samples/ /home/appuser/samples
+COPY data/voice_embedding.pth /home/appuser/voice_embedding.pth
+
+# Crear usuario no-root y ajustar permisos
+RUN useradd --create-home appuser && \
+    chown -R appuser:appuser /home/appuser
+
+# If PRELOAD_TTS was used earlier, copy the downloaded model cache from root to the
+# non-root user's cache directory so the appuser can access it at runtime.
+RUN if [ -d /root/.local/share/tts ]; then \
+    mkdir -p /home/appuser/.local/share || true; \
+    cp -a /root/.local/share/tts /home/appuser/.local/share/ || true; \
+    chown -R appuser:appuser /home/appuser/.local/share/tts || true; \
+    fi
+USER appuser
+WORKDIR /home/appuser
+
+EXPOSE 8765
+CMD ["python", "main.py"]
