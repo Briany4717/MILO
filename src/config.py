@@ -35,15 +35,50 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
 # Modelo de TTS y voz para clonar
-# Backend TTS: "xtts" o "piper"
+# Backend TTS: "xtts", "piper", o "vits"
 TTS_BACKEND = os.getenv("TTS_BACKEND", "xtts")
 TTS_MODEL = os.getenv("TTS_MODEL", "tts_models/multilingual/multi-dataset/xtts_v2")
+
+# Modo de XTTS: "clone" (clonación de voz) o "preset" (voces predefinidas - más rápido)
+XTTS_MODE = os.getenv("XTTS_MODE", "preset")
+
+# Configuración para modo clone (requiere voice_embedding.pth o speaker wav)
 TTS_SPEAKER_WAV = os.getenv("TTS_SPEAKER_WAV", "samples/alejandro_sample_v2.wav")
+
+# Configuración para modo preset (más rápido, sin clonación)
+# Voces disponibles en XTTS v2:
+# - Español Latino: Abrahan Mack, Dionisio Schuyler (masculinas)
+# - Español Latino: Ana Florence, Alison Dietlinde (femeninas)
+# - Español Peninsular: Claribel Dervla, Daisy Studious, Gracie Wise
+# - Multilingües: Viktor Eka, Andrew Chipper, Badr Odhiambo
+XTTS_PRESET_VOICE = os.getenv("XTTS_PRESET_VOICE", "Abrahan Mack")  # Voz masculina latino
+
+# Configuración de emoción/estilo para XTTS
+# Temperature: 0.1-1.5 (0.7 = neutral, >0.7 = más entusiasta/variada)
+XTTS_TEMPERATURE = float(os.getenv("XTTS_TEMPERATURE", "0.85"))  # Ligeramente entusiasta
+XTTS_SPEED = float(os.getenv("XTTS_SPEED", "1.5"))  # Velocidad de habla (0.5-2.0)
+
+# Emotion: "Neutral", "Happy", "Sad", "Angry", "Dull", "Surprised"
+XTTS_EMOTION = os.getenv("XTTS_EMOTION", "Happy")  # Emoción entusiasta
 
 # Configuración específica de Piper
 PIPER_MODEL_PATH = os.getenv("PIPER_MODEL_PATH", "models/piper/es_ES-sharvard-medium.onnx")
 PIPER_CONFIG_PATH = os.getenv("PIPER_CONFIG_PATH", "models/piper/es_ES-sharvard-medium.onnx.json")
 PIPER_SPEAKER_ID = int(os.getenv("PIPER_SPEAKER_ID", "0"))  # ID del hablante para modelos multi-speaker
+
+# Configuración específica de VITS
+# ⚠️  NOTA: VITS tiene LIMITACIONES importantes:
+#     1. Solo español de España disponible (no latino/mexicano)
+#     2. Control emocional muy limitado o inexistente en modelos disponibles
+#     3. Para español latino con emociones, usa XTTS preset mode
+# 
+# VITS es útil principalmente para:
+#     - Velocidad de generación (más rápido que XTTS)
+#     - Menor uso de VRAM
+#     - Español peninsular neutro
+VITS_MODEL = os.getenv("VITS_MODEL", "tts_models/es/css10/vits")  # Español de España
+VITS_EMOTION = os.getenv("VITS_EMOTION", "neutral")  # Limitado, la mayoría no funciona
+VITS_SPEED = float(os.getenv("VITS_SPEED", "1.0"))  # Velocidad de habla
 
 SYSTEM_PROMPT = """
 Eres MILO, un asistente de IA inteligente y servicial.

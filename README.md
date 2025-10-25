@@ -37,7 +37,9 @@ MILO es un servidor de asistente de voz modular e inteligente construido en Pyth
   - **Ollama**: Agente local para privacidad total
   - **Gemini**: Agente remoto de Google AI para respuestas rápidas
 - 🗣️ **Text-to-Speech (TTS)**: Múltiples backends disponibles:
-  - **XTTS v2** (Coqui TTS): Clonación de voz de alta calidad
+  - **XTTS v2** (Coqui TTS): 
+    - Modo PRESET: Voces predefinidas ultrarrápidas ⚡
+    - Modo CLONE: Clonación de voz personalizada
   - **Piper TTS**: Rápido y ligero, ideal para CPU
 - 🔌 **API WebSocket**: Comunicación en tiempo real para audio y texto
 - 🐳 **Docker Ready**: Contenedores preconfigurados para GPU y CPU
@@ -81,10 +83,12 @@ MILO es un servidor de asistente de voz modular e inteligente construido en Pyth
 |------------|-----------|-------------|
 | **STT** | faster-whisper | Transcripción de audio a texto |
 | **LLM** | Ollama (llama3) | Procesamiento de lenguaje natural |
-| **TTS** | XTTS v2 / Piper | Síntesis de voz (con o sin clonación) |
+| **TTS** | XTTS v2 / Piper | Síntesis de voz (preset o clone) |
 | **API** | websockets | Comunicación bidireccional en tiempo real |
 
-> 📖 **Documentación TTS**: Ver [docs/PIPER_TTS.md](docs/PIPER_TTS.md) para información sobre backends TTS disponibles
+> 📖 **Documentación TTS**: 
+> - [docs/PIPER_TTS.md](docs/PIPER_TTS.md) - Información sobre backend Piper
+> - [docs/XTTS_MODES.md](docs/XTTS_MODES.md) - Modos PRESET vs CLONE de XTTS
 
 ---
 
