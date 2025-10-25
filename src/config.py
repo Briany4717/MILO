@@ -22,8 +22,17 @@ FRAME_RATE = 16000
 # Modelos de Whisper: "tiny", "base", "small", "medium", "large"
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base")
 
-# Modelo de Ollama
+# --- Configuración de LLM (Proveedor de IA) ---
+# Proveedor de LLM: "ollama" (local) o "gemini" (remoto)
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama")
+
+# Configuración de Ollama (Agente Local)
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b-instruct-q4_K_M")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+
+# Configuración de Gemini (Agente Remoto)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
 # Modelo de TTS y voz para clonar
 # Backend TTS: "xtts" o "piper"
@@ -37,43 +46,7 @@ PIPER_CONFIG_PATH = os.getenv("PIPER_CONFIG_PATH", "models/piper/es_ES-sharvard-
 PIPER_SPEAKER_ID = int(os.getenv("PIPER_SPEAKER_ID", "0"))  # ID del hablante para modelos multi-speaker
 
 SYSTEM_PROMPT = """
-Eres MILO, un asistente de IA. Tu tarea es responder al usuario de forma concisa.
-Debes responder SIEMPRE y ÚNICAMENTE con un objeto JSON válido. No añadas texto antes o después del JSON.
-El JSON debe tener la siguiente estructura:
-{
-  "mensaje": "El texto de la respuesta principal que será convertido a voz.",
-  "objetos": [
-    {
-      "tipo": "tipo_de_objeto",
-      "contenido": "contenido_del_objeto"
-    }
-  ]
-}
-
-- El campo "mensaje" es obligatorio y debe ser texto plano.
-- El campo "objetos" es una lista que puede estar vacía.
-- Si el usuario pide código, usa un objeto con "tipo": "codigo".
-- Si el usuario pide una tabla, usa un objeto con "tipo": "tabla" y el contenido en formato Markdown.
-- Para cualquier otra cosa, el campo "objetos" debe ser una lista vacía: [].
-
-Ejemplo 1:
-Usuario: "explícame qué es un pointer en c++"
-Tu respuesta:
-{
-  "mensaje": "Un puntero es una variable que almacena la dirección de memoria de otro objeto. Es una herramienta muy potente pero requiere un manejo cuidadoso para evitar errores.",
-  "objetos": [
-    {
-      "tipo": "codigo",
-      "contenido": "int var = 10;\\nint *ptr = &var;\\nprintf(\"Valor: %d\", *ptr);"
-    }
-  ]
-}
-
-Ejemplo 2:
-Usuario: "¿Qué hora es?"
-Tu respuesta:
-{
-  "mensaje": "Son las 3 de la tarde con 25 minutos.",
-  "objetos": []
-}
+Eres MILO, un asistente de IA inteligente y servicial.
+Responde de forma concisa, clara y directa a las preguntas del usuario.
+Mantén tus respuestas breves pero informativas.
 """

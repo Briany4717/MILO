@@ -33,7 +33,9 @@ MILO es un servidor de asistente de voz modular e inteligente construido en Pyth
 ## ✨ Características
 
 - 🎤 **Speech-to-Text (STT)**: Transcripción de audio usando `faster-whisper` con soporte multiidioma
-- 🧠 **Procesamiento LLM**: Integración con Ollama para respuestas inteligentes y contextuales
+- 🧠 **Procesamiento LLM**: Múltiples proveedores disponibles:
+  - **Ollama**: Agente local para privacidad total
+  - **Gemini**: Agente remoto de Google AI para respuestas rápidas
 - 🗣️ **Text-to-Speech (TTS)**: Múltiples backends disponibles:
   - **XTTS v2** (Coqui TTS): Clonación de voz de alta calidad
   - **Piper TTS**: Rápido y ligero, ideal para CPU
@@ -91,9 +93,11 @@ MILO es un servidor de asistente de voz modular e inteligente construido en Pyth
 ### Software Requerido
 
 - **Python 3.12+** ([Descargar](https://www.python.org/downloads/))
-- **Ollama** ([Instalar](https://ollama.ai/))
 - **FFmpeg** (para procesamiento de audio)
 - **CUDA 12.1+** (opcional, para aceleración GPU)
+- **Proveedor LLM** (elige uno):
+  - **Ollama** ([Instalar](https://ollama.ai/)) - Agente local
+  - **Gemini API Key** ([Obtener](https://aistudio.google.com/app/apikey)) - Agente remoto
 
 ### Instalación de FFmpeg
 
@@ -122,6 +126,16 @@ Sigue las instrucciones en [ollama.ai](https://ollama.ai/) y descarga el modelo 
 ```bash
 ollama pull llama3:8b-instruct-q4_K_M
 ```
+
+### Configuración de Gemini (Alternativa)
+
+Si prefieres usar Gemini en lugar de Ollama:
+
+1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Inicia sesión y crea una API key
+3. Guarda la API key para la configuración
+
+📖 **Ver más**: [docs/LLM_PROVIDERS.md](docs/LLM_PROVIDERS.md) para comparación detallada
 
 ---
 
@@ -225,8 +239,16 @@ WEBSOCKET_PORT=8765
 # Modelo Whisper: tiny, base, small, medium, large
 WHISPER_MODEL_SIZE=base
 
-# Modelo Ollama (debe estar descargado localmente)
+# Proveedor LLM: "ollama" (local) o "gemini" (remoto)
+LLM_PROVIDER=ollama
+
+# Configuración Ollama (si LLM_PROVIDER=ollama)
 OLLAMA_MODEL=llama3:8b-instruct-q4_K_M
+OLLAMA_BASE_URL=http://localhost:11434/v1
+
+# Configuración Gemini (si LLM_PROVIDER=gemini)
+GEMINI_API_KEY=tu_api_key_aqui
+GEMINI_MODEL=gemini-1.5-flash
 
 # Backend TTS: "xtts" (clonación de voz) o "piper" (rápido y ligero)
 TTS_BACKEND=xtts
@@ -248,7 +270,10 @@ PIPER_SPEAKER_ID=0
 | `WEBSOCKET_HOST` | Host del servidor WebSocket | `0.0.0.0` |
 | `WEBSOCKET_PORT` | Puerto del servidor | `8765` |
 | `WHISPER_MODEL_SIZE` | Tamaño del modelo Whisper | `base` |
-| `OLLAMA_MODEL` | Modelo de Ollama a usar | `llama3:8b-instruct-q4_K_M` |
+| `LLM_PROVIDER` | Proveedor LLM: `ollama` o `gemini` | `ollama` |
+| `OLLAMA_MODEL` | Modelo de Ollama (si es local) | `llama3:8b-instruct-q4_K_M` |
+| `GEMINI_API_KEY` | API Key de Gemini (si es remoto) | - |
+| `GEMINI_MODEL` | Modelo de Gemini | `gemini-1.5-flash` |
 | `TTS_BACKEND` | Backend TTS: `xtts` o `piper` | `xtts` |
 | `TTS_MODEL` | Modelo de Coqui TTS (XTTS) | `xtts_v2` |
 | `TTS_SPEAKER_WAV` | Audio para clonar voz (XTTS) | `samples/alejandro_sample_v2.wav` |

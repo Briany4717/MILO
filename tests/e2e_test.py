@@ -3,10 +3,8 @@
 
 This script is intended to be executed inside the project container (GPU or CPU).
 It reads a sample file from `samples/`, transcribes it with Whisper, asks the LLM
-for a response (non-streaming), extracts the `mensaje` field if the LLM returns
-JSON, and synthesizes it to `response_e2e.wav`.
+for a response (non-streaming), and synthesizes it to `response_e2e.wav`.
 """
-import json
 import traceback
 from pathlib import Path
 
@@ -31,7 +29,7 @@ def safe_extract_content(resp):
             if 'choices' in resp and len(resp['choices']) > 0:
                 c = resp['choices'][0]
                 if isinstance(c, dict) and 'message' in c and isinstance(c['message'], dict):
-                    return c['message'].get('content', json.dumps(resp))
+                    return c['message'].get('content', str(resp))
             # fallback: if it's already a content string
             if 'content' in resp:
                 return resp['content']
@@ -60,22 +58,14 @@ def main():
         except Exception as e:
             print('LLM call failed:', e)
             traceback.print_exc()
-            resp = {'mensaje': 'Lo siento, no puedo contactar al LLM en este momento.', 'objetos': []}
+            resp = {'content': 'Lo siento, no puedo contactar al LLM en este momento.'}
 
         content = safe_extract_content(resp)
-        print('LLM raw content (truncated):', content[:500])
+        print('LLM response:', content[:500])
 
-        # Try to parse JSON and extract 'mensaje'
-        mensaje = content
-        try:
-            j = json.loads(content)
-            if isinstance(j, dict) and 'mensaje' in j:
-                mensaje = j['mensaje']
-        except Exception:
-            # not JSON, keep content as-is
-            pass
-
-        print('Mensaje to synthesize (truncated):', mensaje[:200])
+        # Use content directly (no JSON parsing needed)
+        mensaje = content.strip()
+        print('Message to synthesize (truncated):', mensaje[:200])
 
         # TTS: split into sentences and synthesize sequentially to reduce peak GPU memory
         print('Splitting mensaje into sentences and synthesizing sequentially to avoid OOM')

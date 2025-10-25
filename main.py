@@ -96,51 +96,65 @@ async def process_user_request(websocket, user_text: str):
 async def process_llm_and_respond(websocket, user_text):
     await websocket.send("Inicio de Respuesta")
     logger.info("Asistente procesando consulta")
-    response_stream = llm_processor.get_response(user_text)
     
-    full_response_text = ""
-    for chunk in response_stream:
-        token = chunk.choices[0].delta.content
-        if token:
-            full_response_text += token
+    try:
+        response_stream = llm_processor.get_response(user_text)
+        
+        full_response_text = ""
+        
+        # Manejar diferentes tipos de streaming según el proveedor
+        if llm_processor.provider == "ollama":
+            # Streaming de Ollama (formato OpenAI)
+            for chunk in response_stream:
+                token = chunk.choices[0].delta.content
+                if token:
+                    full_response_text += token
+                    
+        elif llm_processor.provider == "gemini":
+            # Streaming de Gemini
+            try:
+                for chunk in response_stream:
+                    if hasattr(chunk, 'text'):
+                        full_response_text += chunk.text
+                    elif hasattr(chunk, 'parts'):
+                        for part in chunk.parts:
+                            if hasattr(part, 'text'):
+                                full_response_text += part.text
+            except Exception as e:
+                logger.error(f"Error durante streaming de Gemini: {e}")
+                logger.debug(f"Tipo de error: {type(e).__name__}")
+                # Si falla el streaming, intentar obtener la respuesta completa
+                if hasattr(response_stream, 'text'):
+                    full_response_text = response_stream.text
 
-    llm_processor.add_assistant_response(full_response_text)
+        logger.debug(f"Respuesta completa del LLM ({len(full_response_text)} chars): {full_response_text[:200]}...")
+        
+        if not full_response_text.strip():
+            logger.error("La respuesta del LLM está vacía")
+            await websocket.send("Fin de Respuesta")
+            return
+
+        llm_processor.add_assistant_response(full_response_text)
+        
+    except Exception as e:
+        logger.error(f"Error al procesar respuesta del LLM: {e}")
+        logger.exception("Detalles del error:")
+        await websocket.send("Fin de Respuesta")
+        return
     
     # Mostrar la respuesta completa del LLM
     logger.info("=" * 80)
     logger.info("RESPUESTA DEL LLM:")
     logger.info("-" * 80)
-    
-    try:
-        response_data = json.loads(full_response_text)
-        mensaje_hablado = response_data.get("mensaje", "No recibí un mensaje para hablar.")
-        objetos = response_data.get("objetos", [])
-        
-        # Mostrar el mensaje principal
-        logger.info(f"Mensaje: {mensaje_hablado}")
-        
-        # Mostrar objetos si existen
-        if objetos:
-            logger.info("-" * 80)
-            logger.info(f"Objetos adicionales ({len(objetos)}):")
-            for idx, obj in enumerate(objetos, 1):
-                tipo = obj.get('tipo', 'desconocido')
-                contenido = obj.get('contenido', '')
-                logger.info(f"  [{idx}] Tipo: {tipo}")
-                logger.info(f"      Contenido: {contenido[:100]}{'...' if len(contenido) > 100 else ''}")
-        
-        logger.info("=" * 80)
+    logger.info(full_response_text)
+    logger.info("=" * 80)
 
-    except json.JSONDecodeError as e:
-        logger.error(f"Error: La respuesta del LLM no es un JSON válido: {e}")
-        mensaje_hablado = "Ocurrió un error de formato en mi respuesta."
-
-    if not mensaje_hablado.strip():
+    if not full_response_text.strip():
         logger.warning("El mensaje del LLM está vacío")
         return
 
     # Enviar respuesta de audio usando la función abstraída
-    await send_audio_response(websocket, mensaje_hablado)
+    await send_audio_response(websocket, full_response_text)
 
 async def handle_audio_mode(websocket, audio_frames):
     """Procesa audio del usuario, lo transcribe y procesa la solicitud."""
