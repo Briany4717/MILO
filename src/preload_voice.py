@@ -3,12 +3,17 @@ from TTS.api import TTS
 import os
 import sys
 import builtins
+import warnings
 from logger import get_logger
 
 logger = get_logger(__name__)
 
 # Para evitar la pregunta interactiva de licencia en Docker
 os.environ['COQUI_TOS_AGREED'] = '1'
+
+# Suprimir warnings de torch.load sobre weights_only
+warnings.filterwarnings('ignore', category=FutureWarning, module='torch')
+warnings.filterwarnings('ignore', category=FutureWarning, message='.*weights_only.*')
 
 from TTS.tts.configs.xtts_config import XttsConfig
 from TTS.tts.models.xtts import XttsAudioConfig, XttsArgs

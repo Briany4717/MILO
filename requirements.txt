@@ -18,6 +18,10 @@ transformers==4.36.2
 openai==1.109.1
 openai-whisper==20250625
 
+# --- Piper TTS (alternativa ligera) ---
+piper-tts==1.2.0
+onnxruntime==1.21.1  # Para modelos ONNX de Piper
+
 # --- Audio Processing ---
 pydub==0.25.1
 soundfile==0.13.1

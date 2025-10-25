@@ -34,7 +34,9 @@ MILO es un servidor de asistente de voz modular e inteligente construido en Pyth
 
 - 🎤 **Speech-to-Text (STT)**: Transcripción de audio usando `faster-whisper` con soporte multiidioma
 - 🧠 **Procesamiento LLM**: Integración con Ollama para respuestas inteligentes y contextuales
-- 🗣️ **Text-to-Speech (TTS)**: Síntesis de voz con clonación usando Coqui TTS (XTTS v2)
+- 🗣️ **Text-to-Speech (TTS)**: Múltiples backends disponibles:
+  - **XTTS v2** (Coqui TTS): Clonación de voz de alta calidad
+  - **Piper TTS**: Rápido y ligero, ideal para CPU
 - 🔌 **API WebSocket**: Comunicación en tiempo real para audio y texto
 - 🐳 **Docker Ready**: Contenedores preconfigurados para GPU y CPU
 - 🌍 **Multiidioma**: Soporte para español y otros idiomas
@@ -77,8 +79,10 @@ MILO es un servidor de asistente de voz modular e inteligente construido en Pyth
 |------------|-----------|-------------|
 | **STT** | faster-whisper | Transcripción de audio a texto |
 | **LLM** | Ollama (llama3) | Procesamiento de lenguaje natural |
-| **TTS** | Coqui TTS (XTTS v2) | Síntesis de voz con clonación |
+| **TTS** | XTTS v2 / Piper | Síntesis de voz (con o sin clonación) |
 | **API** | websockets | Comunicación bidireccional en tiempo real |
+
+> 📖 **Documentación TTS**: Ver [docs/PIPER_TTS.md](docs/PIPER_TTS.md) para información sobre backends TTS disponibles
 
 ---
 
@@ -224,11 +228,17 @@ WHISPER_MODEL_SIZE=base
 # Modelo Ollama (debe estar descargado localmente)
 OLLAMA_MODEL=llama3:8b-instruct-q4_K_M
 
-# Modelo TTS
-TTS_MODEL=tts_models/multilingual/multi-dataset/xtts_v2
+# Backend TTS: "xtts" (clonación de voz) o "piper" (rápido y ligero)
+TTS_BACKEND=xtts
 
-# Archivo de muestra de voz para clonación
+# Configuración XTTS v2 (solo si TTS_BACKEND=xtts)
+TTS_MODEL=tts_models/multilingual/multi-dataset/xtts_v2
 TTS_SPEAKER_WAV=samples/alejandro_sample_v2.wav
+
+# Configuración Piper TTS (solo si TTS_BACKEND=piper)
+PIPER_MODEL_PATH=models/piper/es_ES-sharvard-medium.onnx
+PIPER_CONFIG_PATH=models/piper/es_ES-sharvard-medium.onnx.json
+PIPER_SPEAKER_ID=0
 ```
 
 ### Variables Importantes
@@ -239,8 +249,13 @@ TTS_SPEAKER_WAV=samples/alejandro_sample_v2.wav
 | `WEBSOCKET_PORT` | Puerto del servidor | `8765` |
 | `WHISPER_MODEL_SIZE` | Tamaño del modelo Whisper | `base` |
 | `OLLAMA_MODEL` | Modelo de Ollama a usar | `llama3:8b-instruct-q4_K_M` |
-| `TTS_MODEL` | Modelo de Coqui TTS | `xtts_v2` |
-| `TTS_SPEAKER_WAV` | Archivo de audio para clonar voz | `samples/alejandro_sample_v2.wav` |
+| `TTS_BACKEND` | Backend TTS: `xtts` o `piper` | `xtts` |
+| `TTS_MODEL` | Modelo de Coqui TTS (XTTS) | `xtts_v2` |
+| `TTS_SPEAKER_WAV` | Audio para clonar voz (XTTS) | `samples/alejandro_sample_v2.wav` |
+| `PIPER_MODEL_PATH` | Ruta al modelo Piper | `models/piper/es_ES-sharvard-medium.onnx` |
+
+> 💡 **Tip**: Para usar Piper TTS, ejecuta `./scripts/download_piper_model.sh` para descargar un modelo español.
+> Ver [docs/PIPER_TTS.md](docs/PIPER_TTS.md) para más información sobre backends TTS.
 
 ---
 
