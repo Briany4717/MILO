@@ -19,8 +19,41 @@ CHANNELS = 1
 SAMPLE_WIDTH = 2
 FRAME_RATE = 16000
 
-# Modelos de Whisper: "tiny", "base", "small", "medium", "large"
+# --- Configuración de STT (Speech-to-Text) ---
+# Modelos disponibles: "tiny", "base", "small", "medium", "large-v2", "large-v3"
+# Recomendaciones por precisión:
+#   - tiny/base: Rápido pero menos preciso (~10-15% WER)
+#   - small/medium: Balance bueno (~5-8% WER)
+#   - large-v2/large-v3: Máxima precisión (~2-4% WER) ⭐ RECOMENDADO
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base")
+
+# Device: "cpu", "cuda", "auto"
+WHISPER_DEVICE = os.getenv("WHISPER_DEVICE", "cuda" if os.path.exists("/dev/nvidia0") else "cpu")
+
+# Compute type: "int8" (CPU), "float16" (GPU), "float32" (máxima precisión)
+# Para máxima precisión en GPU: float16
+# Para CPU: int8
+WHISPER_COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE_TYPE", "float16" if WHISPER_DEVICE == "cuda" else "int8")
+
+# Parámetros de precisión
+# beam_size: Tamaño del beam search (5-10 para alta precisión, 1 para velocidad)
+WHISPER_BEAM_SIZE = int(os.getenv("WHISPER_BEAM_SIZE", "5"))
+
+# best_of: Número de candidatos a considerar (aumenta precisión pero reduce velocidad)
+WHISPER_BEST_OF = int(os.getenv("WHISPER_BEST_OF", "5"))
+
+# temperature: 0 = determinístico (mejor precisión), >0 = más aleatorio
+WHISPER_TEMPERATURE = float(os.getenv("WHISPER_TEMPERATURE", "0"))
+
+# Idioma: "es" (español), "en" (inglés), None (auto-detección multilingüe)
+# None permite cambiar entre español/inglés automáticamente
+WHISPER_LANGUAGE = os.getenv("WHISPER_LANGUAGE", None)
+
+# VAD (Voice Activity Detection): Filtrar silencios para mejor precisión
+WHISPER_VAD_FILTER = os.getenv("WHISPER_VAD_FILTER", "true").lower() == "true"
+
+# Número de workers para procesamiento
+WHISPER_NUM_WORKERS = int(os.getenv("WHISPER_NUM_WORKERS", "1"))
 
 # --- Configuración de LLM (Proveedor de IA) ---
 # Proveedor de LLM: "ollama" (local) o "gemini" (remoto)
